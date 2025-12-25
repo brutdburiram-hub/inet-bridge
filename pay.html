@@ -19,11 +19,11 @@
     }
 
     // 👉 ใส่ Webhook Lookup ของ Make ตรงนี้
-    const MAKE_LOOKUP_URL = "PUT_YOUR_MAKE_WEBHOOK_URL_HERE";
+    const MAKE_LOOKUP_URL = "https://hook.us1.make.com/myrcg3wv1kred7l7wx2t1vglgoto7k00";
 
     (async () => {
       try {
-        const res = await fetch(https://hook.us1.make.com/myrcg3wv1kred7l7wx2t1vglgoto7k00, {
+        const res = await fetch(MAKE_LOOKUP_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderId })
