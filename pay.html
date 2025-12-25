@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Redirecting to Payment...</title>
+</head>
+<body>
+  <p>กำลังพาไปหน้าชำระเงิน…</p>
+
+  <script>
+    // อ่าน orderId จาก URL
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get("orderId");
+
+    if (!orderId) {
+      document.body.innerHTML = "<p style='color:red'>ไม่พบ orderId</p>";
+      throw new Error("Missing orderId");
+    }
+
+    // 👉 ใส่ Webhook Lookup ของ Make ตรงนี้
+    const MAKE_LOOKUP_URL = "PUT_YOUR_MAKE_WEBHOOK_URL_HERE";
+
+    (async () => {
+      try {
+        const res = await fetch(MAKE_LOOKUP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId })
+        });
+
+        if (!res.ok) {
+          throw new Error("Lookup failed");
+        }
+
+        const data = await res.json();
+        // data = { link: "...", token: "..." }
+
+        if (!data.link || !data.token) {
+          throw new Error("Missing link or token");
+        }
+
+        // สร้างฟอร์ม POST ไป INET
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = data.link;
+        form.enctype = "multipart/form-data";
+
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "access_token";
+        input.value = data.token;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+
+        // ส่งผู้ใช้ไปหน้าชำระเงิน
+        form.submit();
+
+      } catch (err) {
+        document.body.innerHTML =
+          "<p style='color:red'>เกิดข้อผิดพลาด กรุณาลองใหม่</p>";
+        console.error(err);
+      }
+    })();
+  </script>
+</body>
+</html>
