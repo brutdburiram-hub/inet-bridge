@@ -9,13 +9,13 @@
   <p>กำลังพาไปหน้าชำระเงิน…</p>
 
   <script>
-    // อ่าน orderId จาก URL
+    // อ่าน order_id จาก URL
     const params = new URLSearchParams(window.location.search);
-    const orderId = params.get("orderId");
+    const order_id = params.get("order_id");
 
-    if (!orderId) {
-      document.body.innerHTML = "<p style='color:red'>ไม่พบ orderId</p>";
-      throw new Error("Missing orderId");
+    if (!order_id) {
+      document.body.innerHTML = "<p style='color:red'>ไม่พบ order_id</p>";
+      throw new Error("Missing order_id");
     }
 
     // 👉 ใส่ Webhook Lookup ของ Make ตรงนี้
@@ -26,7 +26,7 @@
         const res = await fetch(MAKE_LOOKUP_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId })
+          body: JSON.stringify({ order_id })
         });
 
         if (!res.ok) {
