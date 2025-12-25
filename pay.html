@@ -3,25 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Redirecting...</title>
+  <title>Redirecting to Payment...</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
+    .box { max-width: 520px; margin: 0 auto; }
+    .muted { color: #666; font-size: 14px; }
+  </style>
 </head>
 <body>
-  <p>กำลังพาไปหน้าชำระเงิน…</p>
+  <div class="box">
+    <h3>กำลังพาไปหน้าชำระเงิน…</h3>
+    <p class="muted">กรุณารอสักครู่ ระบบกำลังเตรียมรายการชำระเงิน</p>
+    <p id="err" style="color:#c00;"></p>
+  </div>
 
   <script>
+    // ✅ 1) อ่าน orderId จาก URL (แนะนำใช้ orderId)
     const params = new URLSearchParams(window.location.search);
-    const orderId = params.get("orderId"); // ✅ ใช้ orderId
+
+    // รองรับทั้ง orderId และ order_id เผื่อ Glide ส่งมาไม่ตรง
+    const orderId = params.get("orderId") || params.get("order_id");
 
     if (!orderId) {
-      document.body.innerHTML = "<p style='color:red'>ไม่พบ orderId</p>";
+      document.getElementById("err").textContent = "ไม่พบพารามิเตอร์ orderId (หรือ order_id) ใน URL";
       throw new Error("Missing orderId");
     }
 
-    // ✅ ไปที่ Make webhook แบบ redirect (ไม่มี CORS)
-    const MAKE_WEBHOOK_URL = "https://hook.us1.make.com/myrcg3wv1kred7l7wx2t1vglgoto7k00";
+    // ✅ 2) ใส่ Webhook ของ Make ที่จะ "Render HTML auto-post"
+    // IMPORTANT: ใช้ตัวที่ Make จะตอบกลับเป็นหน้า HTML (Content-Type: text/html)
+    const MAKE_RENDER_URL = "https://google.com";
 
-    // ส่ง orderId แบบ query string
-    window.location.href = `${MAKE_WEBHOOK_URL}?orderId=${encodeURIComponent(orderId)}`;
+    // ✅ 3) Redirect ไป Make แบบ GET (ไม่ติด CORS แน่นอน)
+    const target = `${MAKE_RENDER_URL}?orderId=${encodeURIComponent(orderId)}`;
+
+    // ใช้ replace เพื่อไม่ให้ผู้ใช้กด back แล้วย้อนมาวน
+    window.location.replace(target);
   </script>
 </body>
 </html>
